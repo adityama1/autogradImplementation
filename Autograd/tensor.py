@@ -330,6 +330,7 @@ def _slice(t: Tensor, idxs: slice) -> Tensor:
     """
     data = t.data[idxs]
     requires_grad = t.require_grad
+    depends_on: List[Dependency] = []
 
     if requires_grad:
         def grad_fn(grad: np.ndarray) -> np.ndarray:
@@ -337,9 +338,7 @@ def _slice(t: Tensor, idxs: slice) -> Tensor:
             bigger_grad[idxs] = grad
             return bigger_grad
 
-        depends_on = Dependency(t, grad_fn)
-    else:
-        depends_on = []
+        depends_on = [Dependency(t, grad_fn)]
 
     return Tensor(data,
                   requires_grad,
