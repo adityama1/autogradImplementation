@@ -17,3 +17,19 @@ def tanh(tensor: Tensor) -> Tensor:
     return Tensor(data,
                   requires_grad,
                   depends_on)
+
+
+def relu(tensor:Tensor) -> Tensor:
+    data = np.maximum(tensor.data, 0)
+    requires_grad = tensor.require_grad
+    depends_on: List[Dependency] = []
+
+    if requires_grad:
+        def grad_fn(grad: np.ndarray) -> np.ndarray:
+            grad[tensor.data <= 0] = 0
+            return grad
+        depends_on = [Dependency(tensor, grad_fn)]
+
+    return Tensor(data,
+                  requires_grad,
+                  depends_on)
